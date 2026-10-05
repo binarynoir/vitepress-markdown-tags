@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0]
+## [0.1.1] - 2026-10-05
+
+### Changed
+
+- Downgrade esbuild from 0.27.7 to 0.27.2
+
+## [0.1.0] - 2026-10-05
 
 ### Added
 
