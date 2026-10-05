@@ -31,12 +31,39 @@ npm install @binarynoir/vitepress-markdown-tags
 
 Three small pieces, one for each place VitePress needs to know about tags.
 
-**1. Config** wraps your VitePress config, the same way `withMermaid` or
-`withGlossary` do:
+**1. Config** registers the plugin in VitePress's own `markdown.config` hook,
+the same place you'd add any other markdown-it plugin. `transformPageData`
+keeps the tag syntax out of page titles:
 
 ```ts
 // .vitepress/config.mts
 import { defineConfig } from 'vitepress';
+import { markdownTags, stripTags } from '@binarynoir/vitepress-markdown-tags';
+
+export default defineConfig({
+  markdown: {
+    config(md) {
+      md.use(markdownTags);
+    },
+  },
+
+  transformPageData(pageData) {
+    if (typeof pageData.title === 'string') {
+      pageData.title = stripTags(pageData.title);
+    }
+    if (typeof pageData.frontmatter?.title === 'string') {
+      pageData.frontmatter.title = stripTags(pageData.frontmatter.title);
+    }
+  },
+});
+```
+
+Other markdown-it plugins can share the same `config(md)` function.
+
+Prefer wrapping your config? `withMarkdownTags` does both of the above in one
+call, the same way `withMermaid` or `withGlossary` do:
+
+```ts
 import { withMarkdownTags } from '@binarynoir/vitepress-markdown-tags/vitepress';
 
 export default withMarkdownTags(
@@ -180,6 +207,34 @@ read headings themselves (such as
 and [`vitepress-auto-navbar`](https://github.com/binarynoir/vitepress-auto-navbar))
 see the raw `# Title ((tag|WIP))` text; give those pages a `title` frontmatter
 or a `.sidebar` / `.nav` title override if you don't want the syntax shown there.
+
+Those plugins build the sidebar and navbar when the config loads, before
+VitePress renders anything, so `transformPageData` (and therefore
+`stripFromTitles`) never sees their titles. If you'd rather keep the tags in your
+headings and clean the generated menus instead, run the result through
+`stripTags`:
+
+```ts
+import { stripTags } from '@binarynoir/vitepress-markdown-tags';
+import { generateNav } from '@binarynoir/vitepress-auto-navbar';
+import { generateSidebar } from '@binarynoir/vitepress-auto-sidebar';
+
+// Strip tag syntax from every `text` field in a generated nav/sidebar tree.
+const cleanTitles = <T>(items: T): T =>
+  JSON.parse(
+    JSON.stringify(items, (key, value) => (key === 'text' && typeof value === 'string' ? stripTags(value) : value)),
+  );
+
+export default defineConfig({
+  themeConfig: {
+    nav: cleanTitles(generateNav(docsRoot)),
+    sidebar: cleanTitles(generateSidebar(docsRoot)),
+  },
+});
+```
+
+Pair this with the `transformPageData` hook above (or `withMarkdownTags`) so the
+page `<title>` is clean too.
 
 ## Releasing
 
