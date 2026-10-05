@@ -4,17 +4,17 @@ import { normalizeBackgroundColor, normalizeForegroundColor } from './color.js';
 import type { MarkdownTagsOptions } from './types.js';
 
 /** A fenced code block, closed or (as CommonMark allows) running to the end of the document. */
-const FENCED_CODE =
+export const FENCED_CODE =
   /^[ \t]*(?<fence>`{3,}(?![^\n]*`)|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]*\k<fence>[`~]*[ \t]*\r?$|[\s\S]*$)/m;
 
 /** An inline code span, including double-backtick spans that contain a single backtick. */
-const INLINE_CODE = /(?<!`)(?<tick>`+)(?!`)[^\n]*?[^`\n]\k<tick>(?!`)/;
+export const INLINE_CODE = /(?<!`)(?<tick>`+)(?!`)[^\n]*?[^`\n]\k<tick>(?!`)/;
 
 /**
  * `((tag|label|bgcolor|fgcolor))`. The separator may be `|` or `/` but must be
  * used consistently, and a leading `<` (`((<tag|...))`) selects the arrow style.
  */
-const TAG_SYNTAX =
+export const TAG_SYNTAX =
   /\(\((?<arrow><)?tag(?<separator>[|/])(?<label>[^|/)\r\n]*)(?:\k<separator>(?<background>[^|/)\r\n]*))?(?:\k<separator>(?<foreground>[^|/)\r\n]*))?\)\)/;
 
 /**
@@ -25,7 +25,7 @@ const TAG_SYNTAX =
 const CODE_OR_TAG = new RegExp(`${FENCED_CODE.source}|${INLINE_CODE.source}|${TAG_SYNTAX.source}`, 'gm');
 const TAG_ONLY = new RegExp(TAG_SYNTAX.source, 'g');
 
-interface TagGroups {
+export interface TagGroups {
   arrow?: string;
   label?: string;
   background?: string;

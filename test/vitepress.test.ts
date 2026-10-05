@@ -1,6 +1,9 @@
 import MarkdownIt from 'markdown-it';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { withMarkdownTags } from '../src/vitepress.js';
+import { taggedPagesVitePlugin, withMarkdownTags } from '../src/vitepress.js';
 import type { PageData, UserConfig } from 'vitepress';
 
 // VitePress 2 types `markdown.config` against `markdown-it-async`'s MarkdownIt,
@@ -111,5 +114,38 @@ describe('withMarkdownTags', () => {
       });
       expect(config.transformPageData).toBe(existing);
     });
+  });
+});
+
+describe('taggedPagesVitePlugin', () => {
+  type Hooks = {
+    configResolved: (config: unknown) => void;
+    transform: (code: string, id: string) => { code: string } | null;
+  };
+
+  function createPlugin(): Hooks {
+    const plugin = taggedPagesVitePlugin() as unknown as Hooks;
+    plugin.configResolved({ vitepress: { srcDir: root } });
+    return plugin;
+  }
+
+  const root = mkdtempSync(path.join(tmpdir(), 'tagged-plugin-'));
+  writeFileSync(path.join(root, 'a.md'), '# A ((tag|x))\n');
+
+  it('is added to the Vite config by withMarkdownTags', () => {
+    const config = withMarkdownTags({ vite: { plugins: [{ name: 'existing' }] } } as UserConfig);
+    expect(config.vite?.plugins).toHaveLength(2);
+  });
+
+  it('stamps only tagged-pages pages, and the stamp changes with the site content', () => {
+    const plugin = createPlugin();
+    const taggedSource = '---\ntagged: true\n---\n# Master\n';
+    expect(plugin.transform('# Plain\n', 'a.md')).toBeNull();
+    expect(plugin.transform(taggedSource, 'a.ts')).toBeNull();
+
+    const first = plugin.transform(taggedSource, 'master.md')!.code;
+    expect(first).toMatch(/<!-- markdown-tags:[0-9a-f]{12} -->/);
+    writeFileSync(path.join(root, 'b.md'), '# B ((tag|y))\n');
+    expect(plugin.transform(taggedSource, 'master.md')!.code).not.toBe(first);
   });
 });
