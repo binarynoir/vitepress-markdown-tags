@@ -1,6 +1,6 @@
 {
   "name": "@binarynoir/vitepress-markdown-tags",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Write inline status tags like ((tag|Done|green)) in VitePress 2 Markdown and get styled badge components, with code blocks left untouched.",
   "keywords": [
     "vitepress",
