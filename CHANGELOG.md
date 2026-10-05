@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-05
+
+### Changed
+
+- README: configure `markdownTags` through VitePress's own `markdown.config` hook (with `transformPageData` for titles), with `withMarkdownTags` documented as the shortcut.
+- README: recommend running `generateNav` / `generateSidebar` output through `stripTags`, since those plugins read titles at config time and `transformPageData` never sees them.
+
 ## [0.1.1] - 2026-10-05
 
 ### Changed
