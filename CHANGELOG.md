@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-05
+
+### Added
+
+- Tagged pages: a page with `tagged` frontmatter (`include`, `exclude`, `folders`) lists every tag used across the site, grouped by tag, with links to the sections that use them.
+- `taggedPagesVitePlugin`, added by `withMarkdownTags`, keeps those pages up to date in `vitepress dev`.
+
 ## [0.1.2] - 2026-10-05
 
 ### Changed

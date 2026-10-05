@@ -157,6 +157,49 @@ Write `((tag|Done))` to get a tag.
 
 Indented (four-space) code blocks are not detected; use a fenced block.
 
+## Tagged pages
+
+Tags are scattered across pages, so finding every `((tag|TODO))` by hand is
+tedious. Add a `tagged` key to any page's frontmatter and that page lists every
+tag used across the site, grouped by tag, with a link to the exact section that
+uses it. There is nothing to add to `config.mts`.
+
+```md
+---
+title: All tags
+tagged: true
+---
+
+# All tags
+```
+
+Make as many of these pages as you like, each with its own settings:
+
+```md
+---
+# products/tagged-pages.md: only TODO and WIP, only pages under products/
+tagged:
+  include: [todo, wip]
+  folders: [products]
+---
+```
+
+| Key       | Default    | Description                                                                                                                                             |
+| --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `include` | all tags   | Only list these tag labels. A list, or a single string.                                                                                                 |
+| `exclude` | none       | Never list these labels. Wins over `include`.                                                                                                           |
+| `folders` | whole site | Only scan pages inside these folders, subfolders included. Relative to the docs root (`products`); start with `./` or `../` to be relative to the page. |
+
+- Labels match case-insensitively, so `TODO` and `todo` are one group.
+- The list goes after the page's own content, or in place of a
+  `<!-- tagged-pages -->` comment if you put one in.
+- Pages that have a `tagged` key are never scanned, so master pages don't list each other.
+- Tags in code blocks and inline code are ignored, as everywhere else.
+- It works through `withMarkdownTags`, or `markdownTags` plus
+  `taggedPagesVitePlugin()` from `/vitepress` in `vite.plugins`. The plugin
+  keeps these pages current in `vitepress dev`; builds don't need it.
+- `rewrites` are not followed: links use each file's path under the docs root.
+
 ## Options
 
 Both `markdownTags(md, options)` and `withMarkdownTags(config, options)` take:
