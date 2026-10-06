@@ -9,6 +9,13 @@ A [VitePress 2](https://vitepress.dev) plugin for inline status tags. Write
 Code blocks and inline code are left exactly as written, so you can document the
 syntax itself.
 
+Also available for [VS Code](https://github.com/binarynoir/vscode-markdown-tags)
+and [Obsidian](https://github.com/binarynoir/obsidian-markdown-tags).
+
+[![Support me on Buy Me a Coffee](https://img.shields.io/badge/Support%20me-Buy%20Me%20a%20Coffee-orange?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/binarynoir)
+[![Support me on Ko-fi](https://img.shields.io/badge/Support%20me-Ko--fi-blue?style=for-the-badge&logo=ko-fi)](https://ko-fi.com/binarynoir)
+[![Visit my website](https://img.shields.io/badge/Website-binarynoir.tech-8c8c8c?style=for-the-badge)](https://binarynoir.tech)
+
 ## What this does
 
 ```md
@@ -278,6 +285,19 @@ export default defineConfig({
 
 Pair this with the `transformPageData` hook above (or `withMarkdownTags`) so the
 page `<title>` is clean too.
+
+## Related projects
+
+The same `((tag|label|color))` syntax is available in other tools. The
+[VS Code extension](https://github.com/binarynoir/vscode-markdown-tags) is the
+main project: start there for the syntax reference and to report issues
+common to all of them.
+
+| Project                                                                          | Where it works     |
+| -------------------------------------------------------------------------------- | ------------------ |
+| [vscode-markdown-tags](https://github.com/binarynoir/vscode-markdown-tags)       | Visual Studio Code |
+| [obsidian-markdown-tags](https://github.com/binarynoir/obsidian-markdown-tags)   | Obsidian           |
+| [vitepress-markdown-tags](https://github.com/binarynoir/vitepress-markdown-tags) | VitePress 2 sites  |
 
 ## Releasing
 
