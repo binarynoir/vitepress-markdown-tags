@@ -191,6 +191,35 @@ tagged:
 ---
 ```
 
+### Placing the list
+
+By default the generated list is appended after the page's own content. To put
+it somewhere else, add the `<!-- tagged-pages -->` HTML comment on its own line.
+The list replaces the comment, so you can put an intro above it and notes below:
+
+```md
+---
+title: All tags
+tagged: true
+---
+
+# All tags
+
+Every tag used across the docs, grouped by label.
+
+<!-- tagged-pages -->
+
+## Notes
+
+Content after the list stays where you put it.
+```
+
+The comment must be written exactly as shown (lowercase, single spaces). If it
+appears more than once, only the first is replaced. Without `tagged` in the
+frontmatter the comment is left alone and renders as nothing.
+
+### Settings
+
 | Key       | Default    | Description                                                                                                                                             |
 | --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `include` | all tags   | Only list these tag labels. A list, or a single string.                                                                                                 |
@@ -199,7 +228,7 @@ tagged:
 
 - Labels match case-insensitively, so `TODO` and `todo` are one group.
 - The list goes after the page's own content, or in place of a
-  `<!-- tagged-pages -->` comment if you put one in.
+  `<!-- tagged-pages -->` comment if you put one in (see [Placing the list](#placing-the-list)).
 - Pages that have a `tagged` key are never scanned, so master pages don't list each other.
 - Tags in code blocks and inline code are ignored, as everywhere else.
 - It works through `withMarkdownTags`, or `markdownTags` plus
@@ -316,3 +345,17 @@ the checks, publishes to npm, and creates a GitHub release.
 ## License
 
 MIT
+
+---
+
+## Support
+
+If you encounter any issues or have questions, please open an issue on [GitHub](https://github.com/binarynoir/vitepress-markdown-tags/issues).
+
+## Author
+
+John Smith III
+
+## Acknowledgments
+
+Thanks to all contributors and users for their support and feedback.
