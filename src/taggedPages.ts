@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { scanTags, type ScannedPage, type TagOccurrence } from './scanTags.js';
 
@@ -56,13 +56,38 @@ export function resolveTaggedPagesConfig(frontmatter: unknown): TaggedPagesConfi
   };
 }
 
-function listMarkdownFiles(directory: string): string[] {
+/**
+ * Follows symlinked folders and files. `ancestors` holds the real paths of the
+ * folders above this one, so a link that points back up the tree is skipped
+ * instead of looping forever. Broken links are skipped.
+ */
+function listMarkdownFiles(directory: string, ancestors: Set<string> = new Set()): string[] {
+  let realDirectory: string;
+  try {
+    realDirectory = realpathSync(directory);
+  } catch {
+    return [];
+  }
+  if (ancestors.has(realDirectory)) return [];
+  const chain = new Set(ancestors).add(realDirectory);
+
   const files: string[] = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
     const fullPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...listMarkdownFiles(fullPath));
-    else if (entry.isFile() && entry.name.endsWith('.md')) files.push(fullPath);
+    let isDirectory = entry.isDirectory();
+    let isFile = entry.isFile();
+    if (entry.isSymbolicLink()) {
+      try {
+        const target = statSync(fullPath);
+        isDirectory = target.isDirectory();
+        isFile = target.isFile();
+      } catch {
+        continue;
+      }
+    }
+    if (isDirectory) files.push(...listMarkdownFiles(fullPath, chain));
+    else if (isFile && entry.name.endsWith('.md')) files.push(fullPath);
   }
   return files;
 }

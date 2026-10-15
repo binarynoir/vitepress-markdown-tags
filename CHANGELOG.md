@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-10-15
+
+### Fixed
+
+- Tagged pages now find Markdown in symlinked folders and files under the source directory. Links that point back up the tree and broken links are skipped.
+
 ## [0.2.7] - 2026-10-15
 
 ### Changed

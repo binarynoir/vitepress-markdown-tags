@@ -1,11 +1,16 @@
 import MarkdownIt from 'markdown-it';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { markdownTags } from '../src/plugin.js';
 import { scanTags } from '../src/scanTags.js';
-import { fingerprintTaggedSource, resolveFolders, resolveTaggedPagesConfig } from '../src/taggedPages.js';
+import {
+  fingerprintTaggedSource,
+  indexTaggedSource,
+  resolveFolders,
+  resolveTaggedPagesConfig,
+} from '../src/taggedPages.js';
 
 let root: string;
 
@@ -177,5 +182,39 @@ describe('tagged pages rendering', () => {
     const before = fingerprintTaggedSource(root);
     write('ops/runbook.md', '# Runbook\n\nchanged and longer ((tag|TODO))\n');
     expect(fingerprintTaggedSource(root)).not.toBe(before);
+  });
+});
+
+describe('symlinked content', () => {
+  let base: string;
+
+  beforeAll(() => {
+    base = mkdtempSync(path.join(tmpdir(), 'tagged-links-'));
+    const repo = path.join(base, 'repos', 'product');
+    const docs = path.join(base, 'docs');
+    mkdirSync(path.join(repo, 'guide'), { recursive: true });
+    mkdirSync(docs, { recursive: true });
+    writeFileSync(path.join(repo, 'index.md'), '# Product ((tag|TODO))\n');
+    writeFileSync(path.join(repo, 'guide', 'setup.md'), '# Setup ((tag|WIP))\n');
+    writeFileSync(path.join(base, 'shared.md'), '# Shared ((tag|Done))\n');
+    writeFileSync(path.join(docs, 'index.md'), '# Home\n');
+    symlinkSync(repo, path.join(docs, 'product'), 'dir');
+    symlinkSync(path.join(base, 'shared.md'), path.join(docs, 'shared.md'));
+    // Points back up the tree: must not loop.
+    symlinkSync(docs, path.join(repo, 'guide', 'loop'), 'dir');
+    symlinkSync(path.join(base, 'missing'), path.join(docs, 'broken'), 'dir');
+  });
+
+  afterAll(() => rmSync(base, { recursive: true, force: true }));
+
+  it('follows symlinked folders and files, skipping cycles and broken links', () => {
+    const pages = indexTaggedSource(path.join(base, 'docs'));
+    expect(pages.map((page) => page.relativePath)).toEqual([
+      'index.md',
+      'product/guide/setup.md',
+      'product/index.md',
+      'shared.md',
+    ]);
+    expect(pages.find((page) => page.relativePath === 'product/index.md')?.occurrences[0].label).toBe('TODO');
   });
 });
